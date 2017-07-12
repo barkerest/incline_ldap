@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.executables              = %w()
   spec.required_ruby_version    = '>= 2.3.0'
 
-  spec.add_dependency             "incline",  ">= 0.1.2"
+  spec.add_dependency             "incline",  ">= 0.1.4"
   spec.add_dependency             "net-ldap", "~> 0.16"
 
   spec.add_development_dependency "bundler",  "~> 1.14"

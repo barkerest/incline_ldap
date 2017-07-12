@@ -89,10 +89,10 @@ module InclineLdap
 
         ldap_opt[:encryption] = { method: @options[:ssl] }
       end
-
+      
       ::Incline::Log::debug "Creating new LDAP connection to #{@options[:host]}:#{@options[:port]}..."
       @ldap = Net::LDAP.new(ldap_opt)
-
+      
       ::Incline::Log::debug 'Binding to LDAP server...'
       raise BindError, "Failed to connect to #{@options[:host]}:#{@options[:port]}." unless @ldap.bind
 
@@ -132,14 +132,17 @@ module InclineLdap
     ##
     # Authenticates a user against an LDAP provider.
     def authenticate(email, password, client_ip)
-      ldap_filter = "(&(objectClass=user)(#{@options[:email_attribute]}=#{email}))"
+      ldap_filter = "(&(objectClass=person)(#{@options[:email_attribute]}=#{email}))"
 
       reset_ldap!
 
       search_result = @ldap.search(filter: ldap_filter)
 
       if search_result && search_result.count == 1
+        search_result = search_result.first
+        
         user = ::Incline::User.find_by(email: email)
+        
         if @options[:auto_create] && user.nil?
           rpwd = ::SecureRandom.urlsafe_base64(48)
           ::Incline::Recaptcha::pause_for do
@@ -148,15 +151,18 @@ module InclineLdap
                     email: email,
                     password: rpwd,
                     password_confirmation: rpwd,
-                    name: search_result[:name].first,
+                    name: search_result[:displayName]&.first || search_result[:name]&.first || search_result[:cn]&.first,
                     recaptcha: 'none',
                     enabled: true,
                     activated: !!@options[:auto_activate],
                     activated_at: (@options[:auto_activate] ? Time.now : nil)
                 )
-            user.send_activation_email client_ip
+            unless @options[:auto_activate]
+              user.send_activation_email client_ip
+            end
           end
         end
+        
         if user
           unless user.enabled?
             add_failure_to user, '(LDAP) account disabled', client_ip
@@ -170,7 +176,7 @@ module InclineLdap
           end
         end
       end
-      add_failure_to email, 'invalid email', client_ip
+      add_failure_to email, '(LDAP) invalid email', client_ip
       nil
     end
 

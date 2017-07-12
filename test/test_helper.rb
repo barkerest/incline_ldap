@@ -10,3 +10,5 @@ ActiveRecord::Base.establish_connection adapter: 'sqlite3', pool: 5, database: '
 
 # Execute migrations.
 Incline.migrate!
+
+require 'byebug'
