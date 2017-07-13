@@ -171,8 +171,10 @@ module InclineLdap
           entry = @ldap.bind_as(filter: ldap_filter, password: password)
           if entry && entry.count == 1
             add_success_to user, '(LDAP)', client_ip
+            return user
           else
             add_failure_to user, '(LDAP) invalid password', client_ip
+            return nil
           end
         end
       end

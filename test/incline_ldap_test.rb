@@ -17,15 +17,19 @@ class InclineLdapTest < Minitest::Test
   
   def test_should_connect_and_authenticate
     aa = InclineLdap::AuthEngine.new(@config)
+    euler = 'euler@ldap.forumsys.com'
+    einstein = 'einstein@ldap.forumsys.com'
+    frank = 'frankenstein@ldap.forumsys.com'
+
     assert aa
     # should not be able to login as "Euler" with incorrect password.
-    assert_nil aa.authenticate('euler@ldap.forumsys.com', 'wrong', '127.0.0.1')
+    assert_nil aa.authenticate(euler, 'wrong', '127.0.0.1')
     # should be able to login as "Euler" with correct password.
-    assert aa.authenticate('euler@ldap.forumsys.com', 'password', '127.0.0.1')
+    assert aa.authenticate(euler, 'password', '127.0.0.1')
     # should not be able to login as "Frankenstein" at all.
-    assert_nil aa.authenticate('frankenstein@ldap.forumsys.com', 'password', '127.0.0.1')
+    assert_nil aa.authenticate(frank, 'password', '127.0.0.1')
     # should be able to login as 'Einstein'.
-    assert aa.authenticate('einstein@ldap.forumsys.com', 'password', '127.0.0.1')
+    assert aa.authenticate(einstein, 'password', '127.0.0.1')
   end
   
   def test_should_raise_error_for_invalid_config
