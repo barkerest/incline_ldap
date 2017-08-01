@@ -168,7 +168,8 @@ module InclineLdap
             add_failure_to user, '(LDAP) account disabled', client_ip
             return nil
           end
-          entry = @ldap.bind_as(filter: ldap_filter, password: password)
+          # blank passwords are always invalid.
+          entry = password.to_s.strip == '' ? nil : @ldap.bind_as(filter: ldap_filter, password: password)
           if entry && entry.count == 1
             add_success_to user, '(LDAP)', client_ip
             return user

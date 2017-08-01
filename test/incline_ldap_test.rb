@@ -15,6 +15,14 @@ class InclineLdapTest < Minitest::Test
     }
   end
   
+  def test_should_not_authenticate_without_password
+    aa = InclineLdap::AuthEngine.new(@config)
+    euler = 'euler@ldap.forumsys.com'
+    
+    assert aa
+    assert_nil aa.authenticate(euler, '', '127.0.0.1')
+  end
+  
   def test_should_connect_and_authenticate
     aa = InclineLdap::AuthEngine.new(@config)
     euler = 'euler@ldap.forumsys.com'
